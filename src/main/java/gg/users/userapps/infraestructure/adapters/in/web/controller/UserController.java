@@ -24,7 +24,7 @@ public class UserController {
 
     @PostMapping(value = "/public/create-user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public CreateUserResponse createUser(@RequestBody CreateUserRequest data) {
-        return createUser.execute(data.username(), data.password());
+        return createUser.execute(data);
     }
 
     @PostMapping(value = "/public/log-in",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

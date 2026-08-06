@@ -11,6 +11,9 @@ public class User {
     private Long accountId;
     private String username;
     private String password;
+    private String name;
+    private String lastName;
+    private String email;
     private LocalDateTime tsCrea;
 
     public void validateNewPassword(String oldPassword, String newPassword) {

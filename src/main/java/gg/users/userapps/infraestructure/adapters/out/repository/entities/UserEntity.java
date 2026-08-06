@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Getter
@@ -25,7 +24,19 @@ public class UserEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "ts_crea",updatable = false)
+    @Column(name = "name", length = 100)
+    private String name;
+
+    @Column(name = "last_name", length = 100)
+    private String lastName;
+
+    @Column(name = "email", length = 150)
+    private String email;
+
+    @Column(name = "active")
+    private Integer active = 1;
+
+    @Column(name = "ts_crea", updatable = false)
     @CreationTimestamp
     private LocalDateTime tsCrea;
 }
