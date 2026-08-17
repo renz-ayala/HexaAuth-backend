@@ -1,0 +1,4 @@
+cookie:
+  security:
+    enabled: true
+    same-site: 'None'
