@@ -1,11 +1,7 @@
 package gg.users.userapps.domain.model.commands;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class CreateUserResponse {
-    private String message;
-    private Integer code;
+public record CreateUserResponse (
+        String message,
+        boolean success
+) {
 }

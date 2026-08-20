@@ -1,9 +1,11 @@
 package gg.users.userapps.infrastructure.adapters.out.repository;
 
 import gg.users.userapps.domain.model.User;
+import gg.users.userapps.domain.model.commands.CreateUserResponse;
 import gg.users.userapps.domain.ports.out.UserRepository;
 import gg.users.userapps.infrastructure.adapters.out.repository.entities.UserEntity;
 import gg.users.userapps.infrastructure.adapters.out.repository.jpa.UserJpaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,8 +24,7 @@ public class UserRepositoryAdapter implements UserRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    @Transactional
-    public void createUser(User user) {
+    public CreateUserResponse createUser(User user) {
         var sql = "CALL user1.sp_create_user(?, ?, ?, ?, ?, NULL, NULL, NULL)";
 
         Map<String, Object> result = jdbcTemplate.queryForMap(
@@ -45,11 +46,14 @@ public class UserRepositoryAdapter implements UserRepository {
 
         log.info("Creación de usuario => ID: {}, Código: {}, Mensaje: {}", userId, codeResp, msg);
 
-        if (codeResp == 0) {
-            throw new RuntimeException(msg);
-        }
+        var isSuccess = codeResp == 1;
 
         user.setAccountId(userId);
+
+        return new CreateUserResponse(
+                msg,
+                isSuccess
+        );
     }
 
     @Override
@@ -82,6 +86,16 @@ public class UserRepositoryAdapter implements UserRepository {
         return userJpaRepository.findByUsername(username)
                 .map(this::mapToDomain)
                 .orElse(null);
+    }
+
+    @Override
+    public boolean confirmAccount(String username) {
+        UserEntity user = userJpaRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        user.setActive(1);
+        userJpaRepository.save(user);
+        return true;
     }
 
     @Override

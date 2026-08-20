@@ -23,6 +23,7 @@ public class UserController {
     private final ChangePassword changePassword;
     private final ValidateSession validateSession;
     private final RefreshSession refreshSession;
+    private final ConfirmAccount confirmAccount;
 
     @Value("${jwt.expiration.access}")
     private long accessExpTime;
@@ -37,8 +38,9 @@ public class UserController {
     private String cookieSameSite;
 
     @PostMapping(value = "/public/create-user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public CreateUserResponse createUser(@RequestBody @Valid CreateUserRequest data) {
-        return createUser.execute(data);
+    public ResponseEntity<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest data) {
+        var isUserCreated = createUser.execute(data);
+        return ResponseEntity.ok(isUserCreated);
     }
 
     @PostMapping(value = "/public/log-in",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -56,6 +58,17 @@ public class UserController {
     public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordRequest data, Authentication authentication) {
         changePassword.execute(data.oldPassword(), data.newPassword(), authentication.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping(value = "/public/confirm-account/{token}")
+    public ResponseEntity<String> confirmAccount(@PathVariable String token) {
+        boolean wasUpdated = confirmAccount.execute(token);
+
+        if (!wasUpdated) {
+            return ResponseEntity.badRequest().body("Hubo un error verificando la cuenta");
+        }
+
+        return ResponseEntity.ok("Cuenta verificada");
     }
 
     @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)

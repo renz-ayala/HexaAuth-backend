@@ -10,9 +10,9 @@ spring:
       ddl-auto: none
     show-sql: true
   mail:
-    host: smtp-relay.brevo.com
+    host: smtp-relay.sendinblue.com
     port: 587
-    username: ${SMTP_USER}
+    username: ${SMTP_USERNAME}
     password: ${SMTP_PASSWORD}
     properties:
       mail:
@@ -21,11 +21,21 @@ spring:
           starttls:
             enable: true
             required: true
+          ssl:
+            trust: smtp-relay.sendinblue.com
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
   profiles:
     active: ${DEPLOY:prod}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      password: ${REDIS_TOKEN}
+      ssl:
+        enabled: true
+      timeout: 3000ms
 
 server:
   port: 10102
@@ -42,4 +52,8 @@ jwt:
 cors:
   origin:
     allowed: ${CORS_URL}
+
+java:
+  mail:
+    from: ${EMAIL_FROM}
 

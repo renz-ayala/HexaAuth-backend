@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExceptionResponse> handleRuntimeException(RuntimeException ex) {
-        return this.buildResponse("Error en la operación", ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return this.buildResponse("Error en la operación", ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     private ResponseEntity<ExceptionResponse> buildResponse(String error, String detalle, HttpStatus status) {
