@@ -1,5 +1,6 @@
 package gg.users.userapps.application.usecase;
 
+import gg.users.userapps.domain.model.commands.UserInfo;
 import gg.users.userapps.domain.model.commands.LoginResult;
 import gg.users.userapps.domain.ports.in.LoginUser;
 import gg.users.userapps.domain.ports.out.JwtServicePort;
@@ -22,10 +23,15 @@ public class LoginUserUseCase implements LoginUser {
         }
 
         var roles = userRepository.getRoles(user.getAccountId());
-
         var accessToken = jwtService.generateAccessToken(user, roles);
         var refreshToken = jwtService.generateRefreshToken(user);
-
-        return LoginResult.ok(user.getUsername(), roles, accessToken, refreshToken);
+        var loginResponse = UserInfo.ok(
+                user.getUsername(),
+                roles,
+                user.getName(),
+                user.getLastName(),
+                user.getEmail()
+        );
+        return LoginResult.ok(loginResponse, accessToken, refreshToken);
     }
 }

@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -24,6 +21,7 @@ public class UserController {
     private final ValidateSession validateSession;
     private final RefreshSession refreshSession;
     private final ConfirmAccount confirmAccount;
+    private final FetchUser fetchUser;
 
     @Value("${jwt.expiration.access}")
     private long accessExpTime;
@@ -44,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/public/log-in",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest data) {
+    public ResponseEntity<UserInfo> login(@RequestBody @Valid LoginRequest data) {
         var result = loginUser.execute(data.username(), data.password());
 
         if (!result.response().success()) {
@@ -72,23 +70,18 @@ public class UserController {
     }
 
     @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponse> checkSession(Authentication authentication) {
+    public ResponseEntity<UserInfo> checkSession(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         var username = authentication.getName();
-
-        List<String> roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
-        var loginResponse = LoginResponse.ok(username, roles);
-        return ResponseEntity.ok(loginResponse);
+        var user = fetchUser.execute(username);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping(value = "/public/refresh")
-    public ResponseEntity<LoginResponse> refreshToken(
+    public ResponseEntity<UserInfo> refreshToken(
             @CookieValue(name = "refresh_token", required = false) String refreshToken
     ) {
         if (refreshToken == null || refreshToken.isBlank()) {
@@ -120,7 +113,7 @@ public class UserController {
     }
 
     @NonNull
-    private ResponseEntity<LoginResponse> generateCookies(LoginResult result) {
+    private ResponseEntity<UserInfo> generateCookies(LoginResult result) {
         var accessCookie = this.putCookie("access_token", result.accessToken(), accessExpTime);
         var refreshCookie = this.putCookie("refresh_token", result.refreshToken(), refreshExpTime);
 

@@ -1,6 +1,6 @@
 package gg.users.userapps.application.usecase;
 
-import gg.users.userapps.domain.model.commands.LoginResponse;
+import gg.users.userapps.domain.model.commands.UserInfo;
 import gg.users.userapps.domain.model.commands.LoginResult;
 import gg.users.userapps.domain.ports.in.RefreshSession;
 import gg.users.userapps.domain.ports.out.JwtServicePort;
@@ -24,9 +24,16 @@ public class RefreshSessionUseCase implements RefreshSession {
 
        var roles = userRepository.getRoles(user.getAccountId());
 
+       var loginResponse = UserInfo.ok(
+               user.getUsername(),
+               roles,
+               user.getName(),
+               user.getLastName(),
+               user.getEmail()
+       );
        var newAccessToken = jwtServicePort.generateAccessToken(user, roles);
        var newRefreshToken = jwtServicePort.generateRefreshToken(user);
 
-       return LoginResult.ok(username, roles, newAccessToken, newRefreshToken);
+       return LoginResult.ok(loginResponse, newAccessToken, newRefreshToken);
     }
 }

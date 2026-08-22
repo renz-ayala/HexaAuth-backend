@@ -1,14 +1,12 @@
 package gg.users.userapps.domain.model.commands;
 
-import java.util.List;
-
 public record LoginResult(
-        LoginResponse response,
+        UserInfo response,
         String accessToken,
         String refreshToken
 ) {
     public static LoginResult error(){
-        var errorResponse = LoginResponse.error();
+        var errorResponse = UserInfo.error();
         return new LoginResult(
                 errorResponse,
                 null,
@@ -16,10 +14,9 @@ public record LoginResult(
         );
     }
 
-    public static LoginResult ok(String username, List<String> roles, String accessToken, String refreshToken) {
-        var okResponse = LoginResponse.ok(username, roles);
+    public static LoginResult ok(UserInfo response, String accessToken, String refreshToken) {
         return new LoginResult(
-                okResponse,
+                response,
                 accessToken,
                 refreshToken
         );
