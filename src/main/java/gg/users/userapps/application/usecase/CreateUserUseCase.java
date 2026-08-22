@@ -26,6 +26,7 @@ public class CreateUserUseCase implements CreateUser {
         var user = new User();
         user.validateUsername(request.username());
         user.validatePassword(request.password());
+
         user.setUsername(request.username());
         user.setPassword(request.password());
         user.setName(request.name());

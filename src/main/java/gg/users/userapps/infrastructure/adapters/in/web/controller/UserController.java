@@ -54,7 +54,7 @@ public class UserController {
 
     @PatchMapping(value = "/change-password", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordRequest data, Authentication authentication) {
-        changePassword.execute(data.oldPassword(), data.newPassword(), authentication.getName());
+        changePassword.execute(data.oldPassword(), data.newPassword1(), authentication.getName());
         return ResponseEntity.noContent().build();
     }
 

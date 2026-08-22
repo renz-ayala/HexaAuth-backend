@@ -14,8 +14,6 @@ public class ChangePasswordUseCase implements ChangePassword {
 
     @Override
     public void execute(String oldPassword, String newPassword, String username){
-        User user = new User();
-        user.validateNewPassword(oldPassword, newPassword);
         UserRepository.changePassword(username, oldPassword, newPassword);
     }
 }

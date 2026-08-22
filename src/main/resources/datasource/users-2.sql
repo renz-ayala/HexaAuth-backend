@@ -34,6 +34,7 @@ create table user1.verification_codes (
                                           constraint verification_codes_pkey primary key (email, code)
 ) TABLESPACE pg_default;
 
+truncate user1.user cascade;
 select * from user1.user
 select * from user1.verification_codes
 select * from user1.role
@@ -122,7 +123,7 @@ VALUES (
            p_name,
            p_last_name,
            p_email,
-           1
+           0
        )
     RETURNING user_id INTO p_user_id;
 
