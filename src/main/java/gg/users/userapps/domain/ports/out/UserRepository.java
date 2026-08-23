@@ -13,4 +13,5 @@ public interface UserRepository {
     boolean confirmAccount(String username);
     void changePassword(String username, String oldPassword, String newPassword);
     List<String> getRoles(Long userId);
+    boolean resetPassword(String username, String newPassword);
 }

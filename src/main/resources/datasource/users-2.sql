@@ -269,3 +269,38 @@ from user1.role r
 where ur.user_id = p_user_id;
 end;
     $$
+
+
+CREATE OR REPLACE PROCEDURE user1.sp_reset_password(
+    IN p_username VARCHAR,
+    IN p_new_password VARCHAR,
+    OUT p_code_resp INT,
+    OUT p_msg VARCHAR
+)
+LANGUAGE plpgsql AS $$
+DECLARE
+v_user_exists INT;
+BEGIN
+SELECT COUNT(1) INTO v_user_exists
+FROM user1.user
+WHERE username = p_username;
+
+IF v_user_exists = 0 THEN
+        p_code_resp := 0;
+        p_msg := 'El usuario no existe';
+        RETURN;
+END IF;
+
+UPDATE user1.user
+SET password = crypt(p_new_password, gen_salt('bf')),
+    active = 1
+WHERE username = p_username;
+
+p_code_resp := 1;
+    p_msg := 'Contraseña restablecida exitosamente';
+
+EXCEPTION WHEN OTHERS THEN
+    p_code_resp := 0;
+    p_msg := 'Error al restablecer la contraseña: ' || SQLERRM;
+END;
+$$;

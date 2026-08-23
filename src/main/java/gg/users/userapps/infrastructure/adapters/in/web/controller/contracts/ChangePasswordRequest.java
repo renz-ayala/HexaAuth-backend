@@ -15,5 +15,9 @@ public record ChangePasswordRequest(
         if (newPassword1 != null && newPassword1.equals(oldPassword)) {
             throw new IllegalArgumentException("La contraseña antigua y nueva son iguales");
         }
+
+        if (newPassword1 == null || newPassword1.length() < 8) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres.");
+        }
     }
 }

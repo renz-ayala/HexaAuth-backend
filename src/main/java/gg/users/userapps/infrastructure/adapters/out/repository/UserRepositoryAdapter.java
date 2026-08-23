@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -110,9 +111,10 @@ public class UserRepositoryAdapter implements UserRepository {
                 newPassword
         );
 
-        Number codeRespNumber = (Number) result.get("p_code_resp");
+        var codeRespNumber = (Number) result.get("p_code_resp");
         int codeResp = codeRespNumber != null ? codeRespNumber.intValue() : 0;
-        String msg = (String) result.get("p_msg");
+
+        var msg = (String) result.get("p_msg");
 
         log.info("Respuesta SP sp_change_password => Código: {}, Mensaje: {}", codeResp, msg);
 
@@ -127,6 +129,26 @@ public class UserRepositoryAdapter implements UserRepository {
                 .findRolesByUserIdFn(userId);
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean resetPassword(String username, String newPassword) {
+        var sql = "CALL user1.sp_reset_password(?, ?, NULL, NULL)";
+
+        Map<String, Object> result = jdbcTemplate.queryForMap(
+                sql,
+                username,
+                newPassword
+        );
+
+        var codeRespNumber = (Number) result.get("p_code_resp");
+        int codeResp = codeRespNumber != null ? codeRespNumber.intValue() : 0;
+
+        var msg = (String) result.get("p_msg");
+
+        log.info("Respuesta SP sp_reset_password => Código: {}, Mensaje: {}", codeResp, msg);
+        return codeResp == 1;
+    }
+
     private User mapToDomain(UserEntity userEntity) {
         User user = new User();
         user.setAccountId(userEntity.getCuentaId());
@@ -136,6 +158,7 @@ public class UserRepositoryAdapter implements UserRepository {
         user.setLastName(userEntity.getLastName());
         user.setEmail(userEntity.getEmail());
         user.setTsCrea(userEntity.getTsCrea());
+        user.setActive(userEntity.getActive());
         return user;
     }
 }

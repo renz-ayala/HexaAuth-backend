@@ -15,14 +15,10 @@ public class User {
     private String lastName;
     private String email;
     private LocalDateTime tsCrea;
+    private Integer active;
 
-    public void validateNewPassword(String oldPassword, String newPassword) {
-        if (newPassword == null || newPassword.length() < 8) {
-            throw new IllegalArgumentException("La nueva contraseña debe tener al menos 8 caracteres.");
-        }
-        if (newPassword.equals(oldPassword)) {
-            throw new IllegalArgumentException("La nueva contraseña no puede ser igual a la actual.");
-        }
+    public boolean isAccountActive() {
+        return active == 1;
     }
 
     public void validatePassword(String password) {

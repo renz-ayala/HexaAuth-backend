@@ -17,9 +17,9 @@ public class RedisWebAdapter implements RedisWebPort {
 
     @Override
     @Async
-    public void saveToken(String token, String username) {
+    public void saveToken(String prefixKey, String token, String username) {
         try {
-            var redisKey = "confirm:%s".formatted(token);
+            var redisKey = "%s:%s".formatted(prefixKey, token);
             redisTemplate.opsForValue().set(redisKey, username, Duration.ofMinutes(30));
             log.info("token saved successfully");
         } catch (Exception e) {
@@ -28,8 +28,8 @@ public class RedisWebAdapter implements RedisWebPort {
     }
 
     @Override
-    public String validateToken(String token) {
-        var rediskey = "confirm:%s".formatted(token);
+    public String validateToken(String prefixKey, String token) {
+        var rediskey = "%s:%s".formatted(prefixKey, token);
         String username = redisTemplate.opsForValue().get(rediskey);
 
         if (username == null) {

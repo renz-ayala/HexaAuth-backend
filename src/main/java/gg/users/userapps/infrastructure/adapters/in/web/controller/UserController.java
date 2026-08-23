@@ -3,6 +3,8 @@ package gg.users.userapps.infrastructure.adapters.in.web.controller;
 import gg.users.userapps.domain.model.commands.*;
 import gg.users.userapps.domain.ports.in.*;
 import gg.users.userapps.infrastructure.adapters.in.web.controller.contracts.ChangePasswordRequest;
+import gg.users.userapps.infrastructure.adapters.in.web.controller.contracts.ForgotPasswordRequest;
+import gg.users.userapps.infrastructure.adapters.in.web.controller.contracts.ResetPasswordRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ public class UserController {
     private final RefreshSession refreshSession;
     private final ConfirmAccount confirmAccount;
     private final FetchUser fetchUser;
+    private final RecoverAccount recoverAccount;
+    private final ResetPassword resetPassword;
 
     @Value("${jwt.expiration.access}")
     private long accessExpTime;
@@ -67,6 +71,24 @@ public class UserController {
         }
 
         return ResponseEntity.ok("Cuenta verificada");
+    }
+
+    @PostMapping(value = "/public/forgot-password")
+    public ResponseEntity<Void> recoverAccount(@Valid @RequestBody ForgotPasswordRequest request) {
+        recoverAccount.execute(request.username());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping(value = "/public/reset-password")
+    public ResponseEntity<UserInfo> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        var username = resetPassword.execute(request.token(), request.password());
+        var result = loginUser.execute(username, request.password());
+
+        if (!result.response().success()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result.response());
+        }
+
+        return this.generateCookies(result);
     }
 
     @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -8,6 +8,8 @@ import gg.users.userapps.domain.ports.out.UserRepository;
 import gg.users.userapps.domain.model.commands.CreateUserRequest;
 import gg.users.userapps.domain.model.commands.CreateUserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,9 @@ public class CreateUserUseCase implements CreateUser {
     private final UserRepository userRepository;
     private final EmailWebPort emailWebPort;
     private final RedisWebPort redisWebPort;
+
+    @Value("${cors.origin.allowed}")
+    private String frontendUrl;
 
     @Override
     @Transactional
@@ -37,10 +42,25 @@ public class CreateUserUseCase implements CreateUser {
 
         if (response.success()) {
             var token = UUID.randomUUID().toString();
-            redisWebPort.saveToken(token, user.getUsername());
-            emailWebPort.sendEmailConfirmation(user.getEmail(), user.getName(), token);
+            String text = this.getText(user.getName(), token);
+
+            redisWebPort.saveToken("confirm", token, user.getUsername());
+            emailWebPort.sendEmailConfirmation(user.getEmail(), text, "Confirm your account");
         }
 
         return response;
+    }
+
+    @NonNull
+    private String getText(String name, String token) {
+        var confirmationUrl = "%s/confirm-account?token=%s".formatted(frontendUrl, token);
+
+        return  """
+                <div style='font-family: sans-serif; background-color: #09090b; color: #f4f4f5; padding: 24px; border-radius: 8px;'>
+                    <h2>Hi, %s </h2>
+                    <p>Click the next link to confirm your account:</p>
+                    <a href='%s' style='display: inline-block; background-color: #f4f4f5; color: #09090b; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: bold;'>Confirm account</a>
+                </div>
+                """.formatted(name, confirmationUrl);
     }
 }
