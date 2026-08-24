@@ -76,13 +76,6 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public boolean userExists(String username) {
-        return userJpaRepository.findByUsername(username)
-                .isPresent();
-    }
-
-    @Override
     public User getUserByUsername(String username) {
         return userJpaRepository.findByUsername(username)
                 .map(this::mapToDomain)
@@ -90,11 +83,12 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public boolean confirmAccount(String username) {
+    public boolean activateAccount(String username, boolean toActive) {
         UserEntity user = userJpaRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        user.setActive(1);
+        var activeValue = toActive ? 1 : 0;
+        user.setActive(activeValue);
         userJpaRepository.save(user);
         return true;
     }
@@ -147,6 +141,12 @@ public class UserRepositoryAdapter implements UserRepository {
 
         log.info("Respuesta SP sp_reset_password => Código: {}, Mensaje: {}", codeResp, msg);
         return codeResp == 1;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void deleteUser(String username) {
+        userJpaRepository.deleteByUsername(username);
     }
 
     private User mapToDomain(UserEntity userEntity) {

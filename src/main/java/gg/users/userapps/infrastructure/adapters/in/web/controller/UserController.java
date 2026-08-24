@@ -2,9 +2,10 @@ package gg.users.userapps.infrastructure.adapters.in.web.controller;
 
 import gg.users.userapps.domain.model.commands.*;
 import gg.users.userapps.domain.ports.in.*;
-import gg.users.userapps.infrastructure.adapters.in.web.controller.contracts.ChangePasswordRequest;
-import gg.users.userapps.infrastructure.adapters.in.web.controller.contracts.ForgotPasswordRequest;
-import gg.users.userapps.infrastructure.adapters.in.web.controller.contracts.ResetPasswordRequest;
+import gg.users.userapps.infrastructure.adapters.in.web.contracts.ChangePasswordRequest;
+import gg.users.userapps.infrastructure.adapters.in.web.contracts.ForgotPasswordRequest;
+import gg.users.userapps.infrastructure.adapters.in.web.contracts.ResetPasswordRequest;
+import gg.users.userapps.infrastructure.aspects.RateLimited;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,8 @@ public class UserController {
     private final FetchUser fetchUser;
     private final RecoverAccount recoverAccount;
     private final ResetPassword resetPassword;
+    private final InactivateAccount inactivateAccount;
+    private final DeleteAccount deleteAccount;
 
     @Value("${jwt.expiration.access}")
     private long accessExpTime;
@@ -73,6 +76,7 @@ public class UserController {
         return ResponseEntity.ok("Cuenta verificada");
     }
 
+    @RateLimited(seconds = 90)
     @PostMapping(value = "/public/forgot-password")
     public ResponseEntity<Void> recoverAccount(@Valid @RequestBody ForgotPasswordRequest request) {
         recoverAccount.execute(request.username());
@@ -124,6 +128,39 @@ public class UserController {
 
     @PostMapping(value = "/logout")
     public ResponseEntity<Void> logout() {
+        return this.getInvalidTokens();
+    }
+
+    @DeleteMapping(value = "/inactive/me")
+    public ResponseEntity<Void> inactivateAccount(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        var username = authentication.getName();
+        var accessToken = authentication.getCredentials().toString();
+
+        inactivateAccount.execute(username, accessToken);
+
+        return this.getInvalidTokens();
+    }
+
+    @DeleteMapping(value = "/del/me")
+    public ResponseEntity<Void> deleteAccount(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        var username = auth.getName();
+        var credentials = auth.getCredentials().toString();
+
+        deleteAccount.execute(username, credentials);
+
+        return this.getInvalidTokens();
+    }
+
+    @NonNull
+    private ResponseEntity<Void> getInvalidTokens() {
         var clearAccessCookie = this.putCookie("access_token", "", 0);
         var clearRefreshCookie = this.putCookie("refresh_token", "", 0);
 

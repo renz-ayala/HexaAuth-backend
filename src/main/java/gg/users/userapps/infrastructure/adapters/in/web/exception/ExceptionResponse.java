@@ -1,4 +1,4 @@
-package gg.users.userapps.infrastructure.exception.object;
+package gg.users.userapps.infrastructure.adapters.in.web.exception;
 
 public record ExceptionResponse(
         String error,

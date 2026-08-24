@@ -16,7 +16,7 @@ public record UserInfo(
         return new UserInfo(
                 null,
                 new ArrayList<>(),
-                "inválid credentials",
+                "inválid credentials or account isn't confirmed",
                 false,
                 null,
                 null,

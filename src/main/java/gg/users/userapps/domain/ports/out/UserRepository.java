@@ -8,10 +8,10 @@ import java.util.List;
 public interface UserRepository {
     CreateUserResponse createUser(User user);
     User findUser(String username, String password);
-    boolean userExists(String username);
     User getUserByUsername(String username);
-    boolean confirmAccount(String username);
+    boolean activateAccount(String username, boolean toActive);
     void changePassword(String username, String oldPassword, String newPassword);
     List<String> getRoles(Long userId);
     boolean resetPassword(String username, String newPassword);
+    void deleteUser(String username);
 }

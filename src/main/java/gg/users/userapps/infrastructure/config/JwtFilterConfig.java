@@ -1,6 +1,7 @@
 package gg.users.userapps.infrastructure.config;
 
 import gg.users.userapps.domain.ports.out.JwtServicePort;
+import gg.users.userapps.domain.ports.out.RedisWebPort;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,15 +9,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -25,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtFilterConfig extends OncePerRequestFilter {
     private final JwtServicePort jwtServicePort;
+    private final RedisWebPort redisWebPort;
 
     @Override
     protected void doFilterInternal(
@@ -49,6 +48,11 @@ public class JwtFilterConfig extends OncePerRequestFilter {
         }
 
         try{
+            if (redisWebPort.isTokenBanned(token)) {
+                this.tokenIsInvalid(response, "token banned");
+                return;
+            }
+
             Claims claims = jwtServicePort.validateToken(token);
 
             if (claims == null) {

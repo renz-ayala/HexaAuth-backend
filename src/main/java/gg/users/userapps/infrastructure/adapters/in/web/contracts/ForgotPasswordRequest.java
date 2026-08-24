@@ -1,4 +1,4 @@
-package gg.users.userapps.infrastructure.adapters.in.web.controller.contracts;
+package gg.users.userapps.infrastructure.adapters.in.web.contracts;
 
 import jakarta.validation.constraints.NotBlank;
 

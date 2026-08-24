@@ -20,7 +20,7 @@ public class ConfirmAccountUseCase implements ConfirmAccount {
     public boolean execute(String token) {
         try {
             String username = redisWebPort.validateToken("confirm", token);
-            return userRepositoryPort.confirmAccount(username);
+            return userRepositoryPort.activateAccount(username, true);
         } catch (Exception e) {
             log.error("Error validando en redis", e);
             return false;

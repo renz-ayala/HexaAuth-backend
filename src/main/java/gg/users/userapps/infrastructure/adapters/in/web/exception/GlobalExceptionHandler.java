@@ -1,6 +1,6 @@
-package gg.users.userapps.infrastructure.exception;
+package gg.users.userapps.infrastructure.adapters.in.web.exception;
 
-import gg.users.userapps.infrastructure.exception.object.ExceptionResponse;
+import gg.users.userapps.domain.exception.RateLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,6 +27,11 @@ public class GlobalExceptionHandler {
         });
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ExceptionResponse> handleRateLimitException(RateLimitExceededException ex) {
+        return this.buildResponse("Demasiadas peticiones", ex.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
