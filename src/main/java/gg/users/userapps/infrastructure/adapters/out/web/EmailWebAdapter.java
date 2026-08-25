@@ -29,7 +29,6 @@ public class EmailWebAdapter implements EmailWebPort {
     private String apiKey;
 
 
-    @Async
     public void sendEmailConfirmationWithDomain(String to, String text, String subject) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -48,7 +47,6 @@ public class EmailWebAdapter implements EmailWebPort {
     }
 
     @Override
-    @Async
     public void sendEmailConfirmation(String to, String text, String subject) {
         try {
             var body = Map.of(
