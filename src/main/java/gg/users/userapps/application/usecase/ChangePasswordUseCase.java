@@ -1,6 +1,5 @@
 package gg.users.userapps.application.usecase;
 
-import gg.users.userapps.domain.model.User;
 import gg.users.userapps.domain.ports.in.ChangePassword;
 import gg.users.userapps.domain.ports.out.UserRepository;
 import lombok.RequiredArgsConstructor;

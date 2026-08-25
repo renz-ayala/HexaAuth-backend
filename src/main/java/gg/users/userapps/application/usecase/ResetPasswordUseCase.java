@@ -18,19 +18,18 @@ public class ResetPasswordUseCase implements ResetPassword {
     @Override
     @Transactional
     public String execute(String token, String password) {
-        try {
-            var username = redisWebPort.validateToken("forgot", token);
-            boolean isUpdated = userRepositoryPort.resetPassword(username, password);
+        var username = redisWebPort.validateToken("forgot", token);
 
-            if (!isUpdated) {
-                throw new IllegalArgumentException("No se ha logrado cambiar la contraseña");
-            }
-
-            return username;
-
-        } catch (Exception e) {
-            log.error("Error en la operación", e);
-            throw new IllegalArgumentException("Link inválido o vencido");
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Token inválido o expirado");
         }
+
+        boolean isUpdated = userRepositoryPort.resetPassword(username, password);
+
+        if (!isUpdated) {
+            throw new IllegalArgumentException("No se ha logrado cambiar la contraseña");
+        }
+
+        return username;
     }
 }

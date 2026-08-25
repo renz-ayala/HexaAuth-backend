@@ -58,7 +58,6 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUser(String username, String password) {
         String sql = "CALL user1.sp_validate_password(?, ?, NULL)";
 
@@ -94,7 +93,6 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    @Transactional
     public void changePassword(String username, String oldPassword, String newPassword) {
         String sql = "CALL user1.sp_change_password(?, ?, ?, NULL, NULL)";
 
@@ -124,7 +122,6 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean resetPassword(String username, String newPassword) {
         var sql = "CALL user1.sp_reset_password(?, ?, NULL, NULL)";
 
@@ -144,7 +141,6 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteUser(String username) {
         userJpaRepository.deleteByUsername(username);
     }
