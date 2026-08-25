@@ -50,7 +50,7 @@ public class EmailWebAdapter implements EmailWebPort {
     public void sendEmailConfirmation(String to, String text, String subject) {
         try {
             var body = Map.of(
-                    "sender", Map.of("name", "HexaAuth", "email", from),
+                    "sender", Map.of("name", "Corenz", "email", from),
                     "to", List.of(Map.of("email", to)),
                     "subject", subject,
                     "htmlContent", text
