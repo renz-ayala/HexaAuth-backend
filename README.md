@@ -5,7 +5,7 @@ Servicio de backend desarrollado con Spring Boot 3.3.5 y Java 21, estructurado b
 ## Entorno de Producción
 
 El servicio se encuentra desplegado en Render y consumido directamente por el cliente web:
-* Demo: https://corenz.vercel.app/
+* Podrá encontrar la demo en el repositorio del frontend: https://github.com/renz-ayala/HexaAuth-frontend
 
 ## Stack Tecnológico
 
